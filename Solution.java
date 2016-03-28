@@ -49,7 +49,14 @@ public class Solution {
 		}
 	}
 	
-	static class OrderedCities extends PriorityQueue<City> implements Cloneable {
+	/**
+	 * This class holds a list of cities in a descending order of their
+	 * attractiveness.
+	 * 
+	 * @author polar
+	 *
+	 */
+	static class OrderedCities extends PriorityQueue<City> {
 
 		static Comparator<City> compareCity = new Comparator<City>() {
 	        @Override
@@ -91,6 +98,7 @@ public class Solution {
 		 * Returns the set of all cities in the list that have a strictly
 		 * higher attractiveness than the given attractiveness. It removes
 		 * them from the list.
+		 * 
 		 * @param attractiveness
 		 * @return
 		 */
@@ -105,8 +113,9 @@ public class Solution {
 	
 	/**
 	 * This method builds the traversal graph using the direct roads as children. 
-	 * It also calculate the set of cities with the maximum attractiveness. 
+	 * It also calculates the set of cities with the maximum attractiveness. 
 	 * It returns the cities with the maximum attractiveness.
+	 * 
 	 * @param C The City Map
 	 * @param D The Attractive Map
 	 * @param cities The indexed list of cities to build into.
@@ -167,7 +176,7 @@ public class Solution {
 	}
 	
 	/**
-	 * There is exactly one path between distinct cities. This returns it.
+	 * There is exactly one path between distinct cities.
 	 * @param start
 	 * @param dest
 	 * @param cities
@@ -180,12 +189,12 @@ public class Solution {
 	}
 	
 	/**
-	 * This is the recursive sub function for finding the path from the
+	 * This method is the recursive sub function for finding the path from the
 	 * start to the dest. Since there are really no loops, but our graph
-	 * is bidirectional, we use a seen bobolean to make sure we don't loop.
+	 * is bidirectional, we use a seen boolean to make sure we don't loop.
 	 * @param start
 	 * @param dest
-	 * @param seen
+	 * @param seen a city map to see if we have already included this city.
 	 * @return
 	 */
 	List<City> getPath(City start, City dest, boolean[] seen) {
@@ -210,12 +219,12 @@ public class Solution {
 	
 	/**
 	 * This class keeps the set of cities that are included in the trip plan.
-	 * We use a set as to eliminate duplicate entries.
-	 * It also is used to keep a hash of paths to help with efficiency. That is,
-	 * if a path is added to the set, then its start and destination are 
-	 * recorded here, so that it may be queried with the positive result being
-	 * that the path will not have to be found, because its cities already
-	 * reside in this set.
+	 * We use a hash set as to eliminate duplicate entries.
+	 * It also is used to keep a hash of paths to help with path traversal
+	 * efficiency. That is, if a path is added to the set, then its start 
+	 * and destination are recorded here, so that it may be queried with the 
+	 * positive result being that the path will not have to be found, because 
+	 * its cities already reside in this set.
 	 */
 	class CitySet extends HashSet<City> {
 		/**
@@ -273,6 +282,7 @@ public class Solution {
 			}
 			return max;
 		}
+		
 		/**
 		 * Returns the minimum attractiveness of the set.
 		 * @return
@@ -289,6 +299,7 @@ public class Solution {
 		CitySet() {
 			
 		}
+		
 		/**
 		 * Copies a set along with its paths lookup.
 		 * @param set
@@ -311,9 +322,9 @@ public class Solution {
 	}
 	
 	/**
-	 * This function is the top of the recursive definition. 
+	 * This function is the topmost of the recursive definition. 
 	 * We rectify a set of cities of the same attractiveness against
-	 * all the cities under the maximum amount, k).
+	 * all the cities under the maximum amount, k.
 	 * 
 	 * @param sameA list of cities of the same attractiveness.
 	 * @param k maximum number desired
@@ -330,16 +341,15 @@ public class Solution {
 	}
 	
 	/**
-	 * This function is the sub-recursive function. 
 	 * We rectify a set of cities of the same attractiveness against
-	 * all the cities under the maximum amount, k).
+	 * all the cities under the maximum amount, k.
 	 * 
 	 * @param sameA list of cities of the same attractiveness.
 	 * @param k maximum number desired
 	 * @param set The set of cities in the trip plan for a desired particular attractiveness
 	 * @param av The list of available cities that are not in the set in order of attractiveness.
 	 * @param cities The indexed list of cities.
-	 * @return the maximum number of cities in a maximal valid trip plan. 
+	 * @return the maximum number of cities in a maximal valid trip plan by adding possibly adding one (or eventually more) of the proposed cities. 
 	 */
 	int rectify(List<City> sameA, int k, CitySet set, OrderedCities av, City[] cities) {
 		// We have a list of maximal attractiveness, with available cities not yet traversed;
@@ -364,29 +374,31 @@ public class Solution {
 	 * trip plan it represents. This city may already be in the set due to
 	 * path traversal of two other cities in the trip plan. However it still
 	 * needs to be checked as its path between other cities in the trip plan
-	 * may not be included. We take new cities from the available cities list.
-	 * @param start
+	 * may not already be included. 
+	 * We take any new cities added off the available cities list.
+	 * If we cannot find an acceptable valid trip plan less than or equal
+	 * to k, then we return the size of the given trip plan.
+	 * @param start a new city proposed to be added to the trip plan.
 	 * @param k
-	 * @param set
-	 * @param av
-	 * @param cities
-	 * @return
+	 * @param set a valid trip plan.
+	 * @param av excluded cities
+	 * @param cities the index of cities.
+	 * @return the size of a valid trip plan less than or equal to k.
 	 */
 	int rectify(City start, int k, CitySet set, OrderedCities av, City[] cities) {
-		HashSet<City> removed = new HashSet<City>();
 		OrderedCities avail = av.copy();
 		CitySet proposed = set.copy();
 		proposed.add(start);
 		
 		// If this city is to be in the included set, due to the requirements,
 		// then all its higher attractiveness cities must also be on the set,
-		// regardless of whether we have paths for them yet..
+		// regardless of whether we have paths for them yet.
 		List<City> higher = avail.lopHigher(start.attractiveness);
 		proposed.addAll(higher);
 		
 		// Short circuit.
 		if (proposed.size() > k) {
-			return -1;
+			return set.size();
 		}
 		
 		// Now we search for other cities. We try to find all the cities between
@@ -428,11 +440,12 @@ public class Solution {
 	}
 	
 	/**
-	 * Check and advance the trip plan. The valid trip plan will be of a 
+	 * Check and advance a valid trip plan. The valid trip plan will be of a 
 	 * certain attractiveness, but may be too large or may not be maximal.
 	 * If it is not too large but not quite k, we advance using the next
 	 * level of attractiveness and rectify with that set. If it only returns
-	 * -1 (no valid trip plan found) then we are done.
+	 * -1 (no valid trip plan found) then we are done and just return the size
+	 * of the current valid trip plan.
 	 * @param set The valid trip plan of a certain attractiveness.
 	 * @param k
 	 * @param av
