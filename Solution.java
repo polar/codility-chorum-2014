@@ -264,6 +264,12 @@ public class Solution {
 		int max = Integer.MIN_VALUE;
 		int min = Integer.MAX_VALUE;
 		
+		public boolean add(City c) {
+			max = Math.max(max, c.attractiveness);
+			min = Math.min(min, c.attractiveness);
+			return super.add(c);
+		}
+		
 		public void remove(City a) {
 			max = Integer.MIN_VALUE;
 			min = Integer.MAX_VALUE;
@@ -355,7 +361,7 @@ public class Solution {
 		// We have a list of maximal attractiveness, with available cities not yet traversed;
 		// We rectify each city with itself removed from the available, thereby leaving the
 		// other cities of the same attractiveness, against the current set of selected cities;
-		int max = Integer.MIN_VALUE;
+		int max = set.size();
 		for(City c : sameA) {
 			av.remove(c);
 			int x = rectify(c, k, set, av, cities);
